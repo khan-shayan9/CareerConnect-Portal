@@ -1,40 +1,53 @@
-Career-Connect: Job Application Portal
-A robust, multi-role recruitment management system designed to streamline the job application process for Students, Recruiters, and Administrators. This project focuses on high-integrity database design and role-based data management.
+# CareerConnect
 
-🛠 Technologies Used
-Language: Python
+A desktop job-application portal built with Python (Tkinter) and SQLite, modeling a real campus placement system: students apply to jobs, recruiters post openings and manage candidates, and admins oversee the platform — all on top of a normalized relational schema.
 
-Database: MySQL
+![ER Diagram](ER%20Diagram.png)
 
-Libraries: mysql-connector-python (or your specific driver)
+## Overview
 
-Concepts: Relational Database Design, RBAC (Role-Based Access Control), Data Normalization (3NF).
+CareerConnect was built as a database-design project: the focus is a clean, constraint-enforced relational schema (see `db_structure.sql`, `ER Diagram.png`) driving a working multi-role GUI application, not just a mockup.
 
-🚀 Key Features
-Multi-Role Authentication: Secure login system with distinct permissions for Students, Recruiters, and Admins.
+## Roles
 
-Student Module: Profile management, job searching, and real-time application tracking.
+- **Student** — registers with a university email, builds a profile (program, semester, CGPA, skills, certifications, resume upload), browses/searches jobs, and tracks application status.
+- **Recruiter** — registers a company profile, posts job openings, and manages applicants (shortlist / accept / reject).
+- **Admin** — signs in with a seeded admin account, reviews hiring activity and portal-wide stats via SQL aggregation.
 
-Recruiter Dashboard: Post job openings, manage candidate pools, and update application statuses (Shortlisted, Accepted, Rejected).
+## Schema
 
-Admin Reporting: A powerful analytics suite that uses SQL aggregation to generate summaries of hiring trends and portal activity.
+Core tables (see `db_structure.sql` / individual `.sql` files):
 
-Referential Integrity: Strictly enforced database constraints (Primary/Foreign Keys) to ensure data consistency across complex joins.
+| Table | Purpose |
+|---|---|
+| `users` | Shared credentials + role (Student / Recruiter / Admin) |
+| `students` | Student profile, linked 1:1 to `users` |
+| `recruiters` | Company profile, linked 1:1 to `users` |
+| `jobs` | Job postings, linked to `recruiters` |
+| `applications` | Many-to-many junction between `students` and `jobs`, with status tracking |
+| `job_fairs` | Standalone event listings |
 
-📊 Database Schema Highlights
-The system is built on a normalized schema including:
+Foreign keys enforce referential integrity throughout (e.g. an application can't reference a nonexistent job or student).
 
-Users: Unified table for credentials with role identification.
+## Tech stack
 
-Companies: Profiles for registered employers.
+- **Language:** Python 3
+- **GUI:** Tkinter / ttk
+- **Database:** SQLite (`careerconnect.db`), accessed via `sqlite3`
+- **Concepts:** relational schema design, 3NF normalization, role-based access, parameterized SQL (no string-built queries)
 
-Jobs: Detailed postings linked to companies.
+## Run it
 
-Applications: A junction table managing the many-to-many relationship between students and job posts.
+```bash
+python code.py
+```
 
-💻 Technical Implementation
-Complex Queries: Utilizes advanced SQL JOINs and GROUP BY clauses for real-time reporting.
+No extra dependencies — Tkinter and sqlite3 ship with standard Python. The database file and tables are created automatically on first run, along with a seeded admin login.
 
-Python Integration: Implemented a modular Python interface to handle database connectivity and execute CRUD operations safely.
+> Default admin login is hardcoded in `code.py` (`admin` / `1234`) — change it before using this beyond a local demo.
 
-Integrity: Applied ON DELETE CASCADE and NOT NULL constraints to prevent orphaned records.
+## Files
+
+- `code.py` — application entry point and full Tkinter UI
+- `db_structure.sql`, `applications.sql`, `companies_jobfair.sql`, `interviews.sql`, `jobposting.sql`, `recruiters.sql` — schema and seed data
+- `ER Diagram.png` — entity-relationship diagram
